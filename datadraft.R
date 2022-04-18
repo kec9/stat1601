@@ -26,6 +26,6 @@ rt_titles<-CD%>%
 rateLevs = c("Very poor", "Poor", "Average", "Good", "Excellent")
 wFactor<-data.frame(rt_titles, classRating=factor(rt_titles$classRatingChr, levels = rateLevs))
 
-
+test<-wFactor
 
 
