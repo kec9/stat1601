@@ -1,8 +1,8 @@
 library(dplyr)
 
-wr_titles<-read.csv("~/statWR/covid-student-survey.csv")
+CD<-read.csv("~/statWR/covid-student-survey.csv")
 
-rt_titles<-wr_titles%>%
+rt_titles<-CD%>%
   rename(region = Region.of.residence, 
          age = Age.of.Subject, 
          classTime = Time.spent.on.Online.Class, 
