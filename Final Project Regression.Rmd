@@ -1,0 +1,46 @@
+---
+title: "FP 2.5"
+author: "Alexander di Mauro"
+date: "4/22/2022"
+output: html_document
+---
+
+
+```{r}
+library(ggplot2)
+library(caret)
+```
+
+Building a multiple regression model
+```{r}
+Age_Model = train(age~classTime+studyTime+sleepTime+mediaTime,CDFinal,method = "lmStepAIC",direction = "both",trace = FALSE)
+summary(Age_Model)
+```
+Age = 25.53 - 0.51(classTime) - 0.53(sleepTime) + 0.19(mediaTime)
+
+Predictions (real data, interpolation, prediction)
+```{r}
+multi_prediction = data.frame(classTime=c(2,3.5,11),sleepTime=c(7,4.5,1),mediaTime=c(3,6.3,4),studyTime=c(4,0,0))
+# The first prediction is observation 1 on the data
+predict(Age_Model,multi_prediction)
+```
+
+Logistic Growth Model
+```{r}
+CDFinalNA = na.omit(CDFinal) # The model would spit out an error because some values were missing
+Region_Model = train(region~age+classTime+studyTime+sleepTime+mediaTime+tvTime+meals,CDFinalNA,method="glmStepAIC",family="binomial",trace=FALSE)
+summary(Region_Model)
+Region_Model$finalModel
+```
+```{r}
+exp(coef(Region_Model$finalModel))
+```
+
+Predictions (real data, interpolation, and extrapolation)
+```{r}
+log_predictions = data.frame(age=c(21,22,45),classTime=c(2,5.5,3.0),studyTime=c(4,3,2.5),sleepTime=c(7,6,7.5),mediaTime=c(3,3.4,4.1),
+                             tvTime=c(1,0.5,1),meals=c(4,2,3))
+# The first prediction is observation 1 on the data
+predict(Region_Model,log_predictions)
+```
+

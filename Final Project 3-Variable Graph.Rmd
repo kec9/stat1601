@@ -1,0 +1,20 @@
+---
+title: "Final Project 2.4c"
+author: "Alexander di Mauro"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+```
+
+Bubble Plot
+```{r}
+ggplot(CDFinal,aes(x=age,y=classTime,color=classRating))+geom_point(position="jitter")+theme_classic()+labs(x="Age",y="Class Time per Day (Hours)",title = "Class Time by Age")+theme(plot.title = element_text(hjust = 0.5))
+cor(CDFinal$age,CDFinal$classTime)
+
+ggplot(CDFinal,aes(x=classRating,fill=classMedium))+geom_bar(position = "dodge")+labs(x="Class Rating",y="Percent of Observations",title = "Class Rating by Region")+theme(axis.text.x = element_text(angle = 90),plot.title = element_text(hjust = 0.5))+facet_wrap(~region)
+```
+
