@@ -1,0 +1,56 @@
+---
+title: "COVID-19"
+author: "Avani Uppal"
+date: "4/17/2022"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+
+CD<-read.csv("C:\\Users\\avani\\OneDrive\\Desktop\\COVID-19 Survey Student Responses.csv")
+```
+
+```{r}
+rt_titles = CD%>%
+  rename(region = Region.of.residence, 
+         age = Age.of.Subject, 
+         classTime = Time.spent.on.Online.Class, 
+         classRatingChr = Rating.of.Online.Class.experience, 
+         classMedium = Medium.for.online.class, 
+         studyTime = Time.spent.on.self.study,
+         fitnessTime = Time.spent.on.fitness,
+         sleepTime = Time.spent.on.sleep,
+         mediaTime = Time.spent.on.social.media,
+         tvTime =Time.spent.on.TV,
+         preferredSocial = Prefered.social.media.platform,
+         meals = Number.of.meals.per.day,
+         weightChange = Change.in.your.weight,
+         healthIssue = Health.issue.during.lockdown, 
+         destress = Stress.busters,
+         moreConnected =
+         Do.you.find.yourself.more.connected.with.your.family..close.friends...relatives...,
+         missMost = What.you.miss.the.most)
+rateLevs = c("Very poor", "Poor", "Average", "Good", "Excellent")
+CD2 = data.frame(rt_titles, classRating=factor(rt_titles$classRatingChr, levels = rateLevs))
+CDFinal = CD2%>%
+  select(-c(1,5,8,15,17))%>%
+  mutate(tvTime = as.numeric(tvTime))
+```
+
+```{r}
+Weight_data=CDFinal%>%
+  group_by(weightChange)%>%
+  summarise(Number=n())%>%
+  mutate(Percentage=round((Number*100)/nrow(CDFinal),1))
+```
+```{r}
+ggplot(Weight_data,aes(x=reorder(weightChange,Percentage),y=Percentage))+geom_bar(stat="identity",fill=brewer.pal(3,"Set1"))+geom_text(aes(label=Percentage))+labs(x="Weight Change",y="Percentage",title="Student Weights")+theme(plot.title=element_text(hjust=0.5))
+```
+
+```{r}
+ggplot(CDFinal,aes(x=meals))+geom_histogram(bins=12,fill="turquoise",color="black")+labs(x="Meals per Day",y="Students")
+```
+
