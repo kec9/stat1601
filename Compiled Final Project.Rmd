@@ -6,7 +6,7 @@ output: html_document
 ---
 Creating the initial data set & Data Cleaning
 ```{r}
-CD = read.csv("C:\\Users\\asdim\\Downloads\\COVID-19 Survey Student Responses.csv")
+CD = read.csv()
 library(dplyr)
 
 rt_titles = CD%>%
