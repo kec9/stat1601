@@ -51,6 +51,6 @@ ggplot(Weight_data,aes(x=reorder(weightChange,Percentage),y=Percentage))+geom_ba
 ```
 
 ```{r}
-ggplot(CDFinal,aes(x=meals))+geom_histogram(bins=12,fill="turquoise",color="black")+labs(x="Meals per Day",y="Students")
+ggplot(CDFinal,aes(x=meals))+geom_histogram(bins=10,fill="turquoise",color="black")+labs(x="Meals per Day",y="Students")
 ```
 
