@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: "Alexander di Mauro"
+author: "Alexander di Mauro, Kenneth Cox"
 date: "4/17/2022"
 output: html_document
 ---
