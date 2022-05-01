@@ -1,0 +1,289 @@
+---
+title: "Final Project"
+author: "Alexander di Mauro"
+date: "4/17/2022"
+output: html_document
+---
+Creating the initial data set & Data Cleaning
+```{r}
+CD = read.csv("C:\\Users\\asdim\\Downloads\\COVID-19 Survey Student Responses.csv")
+library(dplyr)
+
+rt_titles = CD%>%
+  rename(region = Region.of.residence, 
+         age = Age.of.Subject, 
+         classTime = Time.spent.on.Online.Class, 
+         classRatingChr = Rating.of.Online.Class.experience, 
+         classMedium = Medium.for.online.class, 
+         studyTime = Time.spent.on.self.study,
+         fitnessTime = Time.spent.on.fitness,
+         sleepTime = Time.spent.on.sleep,
+         mediaTime = Time.spent.on.social.media,
+         tvTime =Time.spent.on.TV,
+         preferredSocial = Prefered.social.media.platform,
+         meals = Number.of.meals.per.day,
+         weightChange = Change.in.your.weight,
+         healthIssue = Health.issue.during.lockdown, 
+         destress = Stress.busters,
+         moreConnected =
+         Do.you.find.yourself.more.connected.with.your.family..close.friends...relatives...,
+         missMost = What.you.miss.the.most)
+
+rateLevs = c("Very poor", "Poor", "Average", "Good", "Excellent")
+CD2 = data.frame(rt_titles, classRating=factor(rt_titles$classRatingChr, levels = rateLevs))
+CDFinal = CD2%>%
+  select(-c(1,5,8,15,17))%>%
+  mutate(tvTime = as.numeric(tvTime))
+```
+2.2
+No code necessary
+
+2.3
+---
+title: "FINAL PROJECT CODE"
+author: "Jacob Wells"
+date: "4/17/2022"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(rvest)
+```
+
+#2.3 B
+```{r}
+CDFinal3=CDFinal%>%
+  select(region, age, studyTime)%>%
+  filter(age==19, studyTime<mean(studyTime), region=="Outside Delhi-NCR")
+```
+
+#2.3 C
+```{r}
+CDFinal2=CDFinal%>%
+  group_by(classRating)%>%
+  summarize(avg.studyTime=mean(studyTime,na.rm=TRUE), avg.sleepTime=mean(sleepTime,na.rm=TRUE),avg.mediaTime=mean(mediaTime,na.rm=TRUE))
+```
+
+2.4
+(a)
+```{r}
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+```
+
+```{r}
+Weight_data=CDFinal%>%
+  group_by(weightChange)%>%
+  summarise(Number=n())%>%
+  mutate(Percentage=round((Number*100)/nrow(CDFinal),1))
+```
+
+```{r}
+
+ggplot(Weight_data,aes(x=reorder(weightChange,Percentage),y=Percentage))+geom_bar(stat="identity",fill=brewer.pal(3,"Set1"))+geom_text(aes(label=Percentage))+labs(x="Weight Change",y="Percentage",title="Student Weights")+theme(plot.title=element_text(hjust=0.5))
+```
+
+```{r}
+
+ggplot(CDFinal,aes(x=meals))+geom_histogram(bins=10,fill="turquoise",color="black")+labs(x="Meals per Day",y="Students")
+```
+
+(b)
+#Data Visualization: Boxplot
+```{r}
+ggplot(CDFinal,aes(x=classRating, y=sleepTime,fill=weightChange))+geom_boxplot(fill="pink", color="purple", outlier.color="red")
+```
+
+(c)
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+```
+
+Bubble Plot
+```{r}
+ggplot(CDFinal,aes(x=age,y=classTime,color=classRating,size=sleepTime,))+geom_point(position="jitter",alpha=0.4)+theme_classic()+labs(x="Age (Years)",y="Class Time per Day (Hours)",title = "Age vs. Daily Class Time")+theme(plot.title = element_text(hjust = 0.5))
+cor(CDFinal$age,CDFinal$classTime)
+
+ggplot(CDFinal,aes(x=classRating,fill=classMedium))+geom_bar(position = "dodge")+labs(x="Class Rating",y="Number of Observations",title = "Class Rating by Region")+theme(axis.text.x = element_text(angle = 90),plot.title = element_text(hjust = 0.5))+facet_wrap(~region)
+
+ggplot(CDFinal,aes(x=classRating,fill=classMedium))+geom_bar(position = "fill")+labs(x="Class Rating",y="Percent of Observations",title = "Class Rating by Region")+theme(axis.text.x = element_text(angle = 90),plot.title = element_text(hjust = 0.5))+facet_wrap(~region)
+```
+
+(d)
+```{r}
+#source("~/statWR/cv_clean.R")
+
+library(ggplot2)
+library(ggwordcloud)
+library(RColorBrewer)
+
+stress<-CDFinal%>%
+  group_by(destress)%>%
+  summarize(count=n())%>%
+  arrange(desc(count))%>%
+  head(10)
+
+#unique(stress$destress)
+
+ggplot(stress,aes(label=destress, size = count, color=destress))+
+  geom_text_wordcloud_area()+
+  scale_color_brewer(palette = "PRGn")+
+  theme_minimal()
+```
+
+
+2.5
+```{r}
+library(ggplot2)
+library(caret)
+library(dplyr)
+```
+
+Building the correlation matrix
+```{r}
+CDCor = CDFinal%>%
+  select(age,classTime,studyTime,sleepTime,mediaTime,tvTime,meals)
+round(cor(CDCor),2)
+
+library(ggcorrplot)
+ggcorrplot(round(cor(CDCor),2),type = "lower",lab = TRUE)
+```
+
+Building a multiple regression model
+```{r}
+Age_Model = train(age~classTime+studyTime+sleepTime+mediaTime,CDFinal,method = "lmStepAIC",direction = "both",trace = FALSE)
+summary(Age_Model)
+```
+Age = 25.53 - 0.51(classTime) - 0.53(sleepTime) + 0.19(mediaTime)
+
+Predictions (real data, interpolation, prediction)
+```{r}
+multi_prediction = data.frame(classTime=c(2,3.5,11),sleepTime=c(7,4.5,1),mediaTime=c(3,6.3,4),studyTime=c(4,0,0))
+# The first prediction is observation 1 on the data
+predict(Age_Model,multi_prediction)
+```
+
+Logistic Growth Model
+```{r}
+CDFinalNA = na.omit(CDFinal) # The model would spit out an error because some values were missing
+Region_Model = train(region~age+classTime+studyTime+sleepTime+mediaTime+tvTime+meals,CDFinalNA,method="glmStepAIC",family="binomial",trace=FALSE)
+summary(Region_Model)
+Region_Model$finalModel
+```
+```{r}
+exp(coef(Region_Model$finalModel))
+```
+
+Predictions (real data, interpolation, and extrapolation)
+```{r}
+log_predictions = data.frame(age=c(21,22,60),classTime=c(2,5.5,3.0),studyTime=c(4,3,2.5),sleepTime=c(7,6,7.5),mediaTime=c(3,3.4,4.1),
+                             tvTime=c(1,0.5,1),meals=c(4,2,3))
+# The first prediction is observation 1 on the data
+predict(Region_Model,log_predictions)
+```
+
+2.6
+```{r}
+###
+
+library(caret)
+
+# plan:
+# group into class ranking (see which factors might be relevant to class
+# satisfaction)
+
+# first model: classMedium, classTime
+studyAndClass<-CDFinal%>%
+  select(classTime,studyTime,classRating)%>%
+  na.omit() 
+# need to omit NA's (but leave till the end, so not omitting usable data)
+
+ggplot(studyAndClass, aes(x=classTime,y=studyTime,color=classRating))+
+  geom_point(position="jitter")
+
+mod1<-train(classRating~classTime+studyTime, studyAndClass, method="knn")
+# don't use: destress (it was categorical and allowed write-ins, so there were 
+# a lot of individual unique responses which wouldn't be helpful as predictors)
+
+mod1
+
+timeManagement<-CDFinal%>%
+  select(studyTime,sleepTime,mediaTime,tvTime,classRating)%>%
+  na.omit()
+
+modTime<-train(classRating~studyTime+sleepTime+mediaTime+tvTime, timeManagement, method="knn")
+
+
+classAndMed<-CDFinal%>%
+  select(classTime,classMedium,classRating)%>%
+  na.omit()
+
+modClass<-train(classRating~classTime+classMedium, classAndMed, method="knn")
+
+
+homeLife<-CDFinal%>%
+  select(age,meals,moreConnected,missMost,classRating)%>%
+  na.omit()
+
+modHome<-train(classRating~age+meals+moreConnected+missMost, 
+            homeLife, method="knn")
+
+comboSet<-CDFinal%>%
+  select(classTime,classMedium,age,meals,moreConnected,missMost,classRating)%>%
+  na.omit()
+
+modCombo<-train(classRating~classTime+classMedium+age+meals+moreConnected+missMost, 
+                comboSet, method="knn")
+
+
+s1<-data.frame(classTime=mean(CDFinal$classTime),
+               classMedium="Laptop/Desktop",
+               age=mean(CDFinal$age),
+               meals=mean(CDFinal$meals),
+               moreConnected="YES",
+               missMost="School/college")
+
+predict(modClass,s1)
+predict(modHome,s1)
+predict(modCombo,s1)
+
+s2<-data.frame(classTime=mean(CDFinal$classTime),
+               classMedium="Laptop/Desktop",
+               age=mean(CDFinal$age),
+               meals=mean(CDFinal$meals),
+               moreConnected="NO",
+               missMost="Friends , relatives")
+
+predict(modClass,s2)
+predict(modHome,s2)
+predict(modCombo,s2)
+
+quantile(CDFinal$classTime, probs = 0.25)
+
+s3<-data.frame(classTime=2,
+               classMedium="Laptop/Desktop",
+               age=mean(CDFinal$age),
+               meals=mean(CDFinal$meals),
+               moreConnected="NO",
+               missMost="Friends , relatives")
+
+predict(modClass,s3)
+predict(modHome,s3)
+predict(modCombo,s3)
+
+s4<-data.frame(classTime=2,
+               classMedium="Laptop/Desktop",
+               age=mean(CDFinal$age),
+               meals=mean(CDFinal$meals),
+               moreConnected="YES",
+               missMost="Friends , relatives")
+
+predict(modClass,s4)
+predict(modHome,s4)
+predict(modCombo,s4)
+```
+
