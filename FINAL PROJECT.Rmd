@@ -1,0 +1,65 @@
+---
+title: "FINAL PROJECT CODE"
+author: "Jacob Wells"
+date: "4/17/2022"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(rvest)
+```
+
+
+```{r}
+CD = read.csv("C:\\Users\\booga\\Downloads\\COV\\COVID-19 Survey Student Responses.csv")
+library(dplyr)
+rt_titles = CD%>%
+  rename(region = Region.of.residence, 
+         age = Age.of.Subject, 
+         classTime = Time.spent.on.Online.Class, 
+         classRatingChr = Rating.of.Online.Class.experience, 
+         classMedium = Medium.for.online.class, 
+         studyTime = Time.spent.on.self.study,
+         fitnessTime = Time.spent.on.fitness,
+         sleepTime = Time.spent.on.sleep,
+         mediaTime = Time.spent.on.social.media,
+         tvTime =Time.spent.on.TV,
+         preferredSocial = Prefered.social.media.platform,
+         meals = Number.of.meals.per.day,
+         weightChange = Change.in.your.weight,
+         healthIssue = Health.issue.during.lockdown, 
+         destress = Stress.busters,
+         moreConnected =
+         Do.you.find.yourself.more.connected.with.your.family..close.friends...relatives...,
+         missMost = What.you.miss.the.most)
+rateLevs = c("Very poor", "Poor", "Average", "Good", "Excellent")
+CD2 = data.frame(rt_titles, classRating=factor(rt_titles$classRatingChr, levels = rateLevs))
+CDFinal = CD2%>%
+  select(-c(1,5,8,15,17))%>%
+  mutate(tvTime = as.numeric(tvTime))
+View(CDFinal)
+
+```
+
+#2.3 B
+```{r}
+CDFinal3=CDFinal%>%
++ select(region, age, studyTime)%>%
++ filter(age==19, studyTime<mean(studyTime), region=="Outside Delhi-NCR")
+```
+
+#2.3 C
+```{r}
+CDFinal2=CDFinal%>%
++ group_by(classRating)%>%
++ summarize(avg.studyTime=mean(studyTime,na.rm=TRUE), avg.sleepTime=mean(sleepTime,na.rm=TRUE),avg.mediaTime=mean(mediaTime,na.rm=TRUE))
+```
+
+
+#Data Visualization: Boxplot
+```{r}
+ggplot(CDFinal,aes(x=classRating, y=sleepTime,fill=weightChange))+geom_boxplot(fill="pink", color="purple", outlier.color="red")
+```
+
