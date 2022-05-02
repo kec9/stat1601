@@ -1,0 +1,9 @@
+CDFinal2=CDFinal%>%
++ group_by(classRating)%>%
++ summarize(avg.studyTime=mean(studyTime,na.rm=TRUE), avg.sleepTime=mean(sleepTime,na.rm=TRUE,avg.mediaTime=mean(mediaTime,na.rm=TRUE)
+
+CDFinal3=CDFinal%>%
++ select(region, age, studyTime)%>%
++ filter(age==19, studyTime<mean(studyTime), region=="Outside Delhi-NCR")
+
+
