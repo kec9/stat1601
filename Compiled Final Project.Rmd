@@ -163,7 +163,9 @@ ggplot(CDFinal,aes(x=classRating,fill=classMedium))+geom_bar(position = "fill")+
 (d)
 ```{r}
 #source("~/statWR/cv_clean.R")
+# (ignore ^)
 
+# Word Cloud:
 library(ggplot2)
 library(ggwordcloud)
 library(RColorBrewer)
@@ -172,14 +174,32 @@ stress<-CDFinal%>%
   group_by(destress)%>%
   summarize(count=n())%>%
   arrange(desc(count))%>%
-  head(10)
-
-#unique(stress$destress)
+  head(15)
 
 ggplot(stress,aes(label=destress, size = count, color=destress))+
   geom_text_wordcloud_area()+
-  scale_color_brewer(palette = "PRGn")+
   theme_minimal()
+
+# Heat Map:
+
+sleepMap<-CDFinal%>%
+  select(classMedium,classRating,sleepTime,moreConnected)%>%
+  na.omit()
+
+ggplot(sleepMap, aes(x=moreConnected, y=classRating, fill=sleepTime))+
+  geom_tile(color = "white")+
+  theme(axis.text.x=element_text(angle=90))+
+  labs(x="More Connected?",y="Class Rating", 
+         title="Sleep by Class Rating and Connection")+
+  scale_fill_distiller(palette = "Greens", direction = 0)
+
+eRating<-sleepMap%>%
+  filter((classRating=="Excellent")&(moreConnected=="NO"))
+# ^ investigating an apparent outlier (low sleep time associated w/ excellent rating & "no" to more connected)
+
+summary(eRating$sleepTime) # actually pretty normal median sleep time (8hrs);
+# just few observations (16) and a low minimum (5hrs)
+
 ```
 
 
