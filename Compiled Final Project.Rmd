@@ -54,16 +54,58 @@ library(rvest)
 
 #2.3 B
 ```{r}
+CDFinal2=CDFinal%>%
+  filter(region=="Outside Delhi-NCR", age<=25 & age>=15)%>%
+  group_by(age)%>%
+  summarize(avg.StudyTime=mean(studyTime,na.rm=TRUE))
+```
+
+```{r}
 CDFinal3=CDFinal%>%
-  select(region, age, studyTime)%>%
-  filter(age==19, studyTime<mean(studyTime), region=="Outside Delhi-NCR")
+  filter(age>=15, age <=25)%>%
+  select(region,age,studyTime)
+CDFinal3%>%
+  group_by(region,age)%>%
+  summarize(avg.StudyTime=mean(studyTime,na.rm=TRUE))%>%
+  arrange(age)
 ```
 
 #2.3 C
+Two-way table
 ```{r}
-CDFinal2=CDFinal%>%
-  group_by(classRating)%>%
-  summarize(avg.studyTime=mean(studyTime,na.rm=TRUE), avg.sleepTime=mean(sleepTime,na.rm=TRUE),avg.mediaTime=mean(mediaTime,na.rm=TRUE))
+CDFinal%>%
+  select(classRating,moreConnected)%>%
+  table()
+```
+Frequency table
+```{r}
+table(CDFinal$region,CDFinal$preferredSocial)
+```
+Measure of Spread
+```{r}
+var(CDFinal$mediaTime)
+sd(CDFinal$mediaTime)
+IQR(CDFinal$mediaTime)
+min(CDFinal$mediaTime)
+max(CDFinal$mediaTime)
+range(CDFinal$mediaTime)
+```
+Measure of Center
+```{r}
+mean(CDFinal$sleepTime)
+median(CDFinal$sleepTime)
+```
+
+Table of Numerical Variables
+
+```{r}
+CDFinal3=CDFinal%>%
+  filter(age>=15,age<=21)%>%
+  select(region,age,tvTime)
+CDFinal3%>%
+  group_by(age)%>%
+  summarize(avg.tvTime=mean(tvTime,na.rm=TRUE))%>%
+  arrange(age)
 ```
 
 2.4
@@ -95,6 +137,11 @@ ggplot(CDFinal,aes(x=meals))+geom_histogram(bins=10,fill="turquoise",color="blac
 #Data Visualization: Boxplot
 ```{r}
 ggplot(CDFinal,aes(x=classRating, y=sleepTime,fill=weightChange))+geom_boxplot(fill="pink", color="purple", outlier.color="red")
+```
+
+#Data visualization: Scatter Plot
+```{r}
+ggplot(CDFinal,aes(x=studyTime,y=tvTime))+geom_point()
 ```
 
 (c)
