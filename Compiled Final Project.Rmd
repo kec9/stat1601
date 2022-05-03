@@ -326,10 +326,10 @@ modCombo<-train(classRating~classTime+classMedium+age+meals+moreConnected+missMo
                 comboSet, method="knn")
 
 
-s1<-data.frame(classTime=mean(CDFinal$classTime),
+s1<-data.frame(classTime=median(CDFinal$classTime),
                classMedium="Laptop/Desktop",
-               age=mean(CDFinal$age),
-               meals=mean(CDFinal$meals),
+               age=median(CDFinal$age),
+               meals=median(CDFinal$meals),
                moreConnected="YES",
                missMost="School/college")
 
@@ -337,10 +337,10 @@ predict(modClass,s1)
 predict(modHome,s1)
 predict(modCombo,s1)
 
-s2<-data.frame(classTime=mean(CDFinal$classTime),
+s2<-data.frame(classTime=median(CDFinal$classTime),
                classMedium="Laptop/Desktop",
-               age=mean(CDFinal$age),
-               meals=mean(CDFinal$meals),
+               age=median(CDFinal$age),
+               meals=median(CDFinal$meals),
                moreConnected="NO",
                missMost="Friends , relatives")
 
@@ -352,8 +352,8 @@ quantile(CDFinal$classTime, probs = 0.25)
 
 s3<-data.frame(classTime=2,
                classMedium="Laptop/Desktop",
-               age=mean(CDFinal$age),
-               meals=mean(CDFinal$meals),
+               age=median(CDFinal$age),
+               meals=median(CDFinal$meals),
                moreConnected="NO",
                missMost="Friends , relatives")
 
@@ -363,8 +363,8 @@ predict(modCombo,s3)
 
 s4<-data.frame(classTime=2,
                classMedium="Laptop/Desktop",
-               age=mean(CDFinal$age),
-               meals=mean(CDFinal$meals),
+               age=median(CDFinal$age),
+               meals=median(CDFinal$meals),
                moreConnected="YES",
                missMost="Friends , relatives")
 
