@@ -169,14 +169,33 @@ ggplot(CDFinal,aes(x=classRating,fill=classMedium))+geom_bar(position = "fill")+
 library(ggplot2)
 library(ggwordcloud)
 library(RColorBrewer)
-
-stress<-CDFinal%>%
+stress_messy<-CDFinal%>%
   group_by(destress)%>%
   summarize(count=n())%>%
-  arrange(desc(count))%>%
-  head(15)
+  arrange(desc(count))
 
-ggplot(stress,aes(label=destress, size = count, color=destress))+
+allDestressors<-unique(stress_messy$destress) # looking at unique values of destress
+
+# should combine: 
+#"Talking" + "Talking to […]" + "Taking" (typo) -> "Talking"
+#"Workout"/"workout"/"working out" + "Gym" + "Exercise"/"Exercising" +
+# "Cardio" -> "Exercise"
+# "Watching web series" + "Youtube" + "Web series" -> "Web series"
+
+stress<-CDFinal%>%
+  select(destress)%>%
+  mutate(destress=gsub("(Talking.*)|(Taking.*)|(Taking.*)","Talking",destress,ignore.case=T))%>%
+  mutate(destress=gsub("(Workout.*)|(working out.*)|(Gym)|(Exercising)|(Exercise)|(Cardio)",
+                         "Exercise",destress,ignore.case=T))%>%
+  mutate(destress=gsub("(.*Youtube.*)|(.*Web series.*)","Web Series",
+                       destress,ignore.case=T))%>%
+  group_by(destress)%>%
+  summarize(count=n())%>%
+  arrange(desc(count))
+
+top15<-stress%>%head(15)
+
+ggplot(top15,aes(label=destress, size = count, color=destress))+
   geom_text_wordcloud_area()+
   theme_minimal()
 
